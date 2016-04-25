@@ -42,30 +42,31 @@
   var startGame = false;
   
   function mark(cords, player) {
-    if(startGame) {
-      if(player.mark != xo)
-        $("#stats").html('Not your turn').fadeIn(1000, function() {
-          $(this).css({"display": "block","visibility": "visible"});
-        }).fadeOut(1000, function() {
-          $(this).css({"display": "block","visibility": "hidden"}); 
-        });
-      else {
-        if($(cords).html() == '')
-          socket.emit("process_move", cords, player);
-        else
-          $("#stats").html('Invalid move').fadeIn(1000, function() {
+    if (!gameover) {
+      if(startGame) {
+        if(player.mark != xo)
+          $("#stats").html('Not your turn').fadeIn(1000, function() {
             $(this).css({"display": "block","visibility": "visible"});
           }).fadeOut(1000, function() {
             $(this).css({"display": "block","visibility": "hidden"}); 
           });
-      }
+        else {
+          if($(cords).html() == '')
+            socket.emit("process_move", cords, player);
+          else
+            $("#stats").html('Invalid move').fadeIn(1000, function() {
+              $(this).css({"display": "block","visibility": "visible"});
+            }).fadeOut(1000, function() {
+              $(this).css({"display": "block","visibility": "hidden"}); 
+            });
+        }
+      } else
+        $("#stats").html('Pending extra player...').fadeIn(1000, function() {
+          $(this).css({"display": "block","visibility": "visible"});
+        }).fadeOut(1000, function() {
+          $(this).css({"display": "block","visibility": "hidden"}); 
+        });
     }
-    else
-      $("#stats").html('Pending extra player...').fadeIn(1000, function() {
-        $(this).css({"display": "block","visibility": "visible"});
-      }).fadeOut(1000, function() {
-        $(this).css({"display": "block","visibility": "hidden"}); 
-      });
   }
   
   socket.on('mark', function(sq) {
@@ -117,7 +118,6 @@
   socket.on('load', function(data) {
      var x = 0;
      var showedX, showedO = false;
-     console.log(data);
      while( x < data.length ) {
        if(data[x].mark == 'x') {
          $("#p1").html(data[x].name + ": <span style='color:red'>X</span>");
@@ -139,10 +139,25 @@
     player.id = data.id;
     player.name = data.name;
     player.mark = data.mark;
+    if (player.mark == 'o') {
+      $("td").mouseover(function() {
+        $(this).css("border-color","blue").css("background-color", "lightblue");
+      }).mouseout(function() {
+        $(this).css("border-color", "black").css("background-color","transparent");
+    });;
+    }
   });
   
   socket.on('gameover', function(data){
     gameover = true;
-    $("#stats").html("Game Over!").hide().fadeIn(1000);
+    if (player.mark != xo) {
+      $("#stats").html("You Win!").fadeIn(1000, function() {
+        $(this).css({"display": "block","visibility": "visible"});
+      });
+    } else {
+      $("#stats").html("You Lose!").fadeIn(1000, function() {
+        $(this).css({"display": "block","visibility": "visible"});
+      });
+    }    
   });
 </script>

@@ -6,10 +6,10 @@ module.exports = function(app, server) {
 	var io = socketio.listen(server);
     io.set('log level', 1);
 
-    var xo = 'x'; // change to whats available.
+    var xo = 'x';
     var o = false;
     var m_players = [];
-    var i = 0; // How many connected players.
+    var i = 0;
 
     var grid = {
       '0-0': '', '0-1':'', '0-2':'',
@@ -62,7 +62,7 @@ module.exports = function(app, server) {
 		        (grid['2-0'] == grid['1-1'] && grid['1-1'] == grid['0-2'] && grid['2-0'] != '') 
 	        )
 	        {
-	          io.sockets.emit('gameover', xo);
+	          io.sockets.emit('gameover', player);
 	        }
     	});
       

@@ -43,14 +43,14 @@
   
   function mark(cords, player) {
     if (!gameover) {
-      if(startGame) {
-        if(player.mark != xo)
+      if (startGame && player.mark != 'spectator') {
+        if(player.mark != xo) {
           $("#stats").html('Not your turn').fadeIn(1000, function() {
             $(this).css({"display": "block","visibility": "visible"});
           }).fadeOut(1000, function() {
             $(this).css({"display": "block","visibility": "hidden"}); 
           });
-        else {
+        } else {
           if($(cords).html() == '')
             socket.emit("process_move", cords, player);
           else
@@ -60,7 +60,7 @@
               $(this).css({"display": "block","visibility": "hidden"}); 
             });
         }
-      } else
+      } else if (!startGame && player.mark != 'spectator')
         $("#stats").html('Pending extra player...').fadeIn(1000, function() {
           $(this).css({"display": "block","visibility": "visible"});
         }).fadeOut(1000, function() {
@@ -119,15 +119,16 @@
      var x = 0;
      var showedX, showedO = false;
      while( x < data.length ) {
-       if(data[x].mark == 'x') {
-         $("#p1").html(data[x].name + ": <span style='color:red'>X</span>");
-         showedX = true;
-       }
-       else if(data[x].mark == 'o') {
-         $("#p2").html(data[x].name + ": <span style='color:blue'>O</span>");
-         showedO = true;
-       }
-       x++;
+        if (data[x].id == player.id)
+          player.mark = data[x].mark;
+        if(data[x].mark == 'x') {
+          $("#p1").html(data[x].name + ": <span style='color:red'>X</span>");
+          showedX = true;
+        } else if (data[x].mark == 'o') {
+          $("#p2").html(data[x].name + ": <span style='color:blue'>O</span>");
+          showedO = true;
+        }
+        x++;
      }
      
      if(!showedX) $("#p1").html("Waiting...");
@@ -149,7 +150,7 @@
         $(this).css("border-color","blue").css("background-color", "lightblue");
       }).mouseout(function() {
         $(this).css("border-color", "black").css("background-color","transparent");
-    });;
+      });;
     }
   });
   

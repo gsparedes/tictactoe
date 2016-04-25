@@ -73,6 +73,7 @@ module.exports = function(app, server) {
 	        var j = 0;
 	        var n = 0;
 	        var tmp = [];
+	        var spectatorLeft = false;
 
 	        while (n < listOfPlayers.length) {
 	        	if (listOfPlayers[j].id == socket.id) {
@@ -84,6 +85,8 @@ module.exports = function(app, server) {
 	            	if(listOfPlayers[j].mark == 'x')
 	            		xo = 'x';
 	         	  
+	         	  	if (listOfPlayers[j].mark == 'spectator')
+	         	  		spectatorLeft = true;
 	         		n++;
 	         	}
 	         	 
@@ -96,26 +99,31 @@ module.exports = function(app, server) {
 	         	
 	        listOfPlayers = tmp;
 	        playerCounter = j;
-	        // Reset grid
-	        grid = {
-		      '0-0': '', '0-1':'', '0-2':'',
-		      '1-0': '', '1-1':'', '1-2':'',
-		      '2-0': '', '2-1':'', '2-2': ''
-		    };
-	        // Re-initialize players
-	        for (var y = 0; y < listOfPlayers.length; y++) {
-	        	if(listOfPlayers[y].mark == 'spectator') {
-	        		listOfPlayers[y].mark = xo;
-	        		if(xo == 'x' && o == false)  {
-		          		xo = 'o';
-		          		o = true;
-		        	}
-		        	continue;
-	        	}
+	        if (!spectatorLeft) {
+	        	// Reset grid
+		        grid = {
+			      '0-0': '', '0-1':'', '0-2':'',
+			      '1-0': '', '1-1':'', '1-2':'',
+			      '2-0': '', '2-1':'', '2-2': ''
+			    };
+		        // Re-initialize players
+		        var gameReady = false;
+		        for (var y = 0; y < listOfPlayers.length; y++) {
+		        	if (gameReady)
+		        		io.sockets.emit('reload');
+					else if(listOfPlayers[y].mark == 'spectator' && !gameReady) {
+		        		listOfPlayers[y].mark = xo;
+		        		if(xo == 'x' && o == false)  {
+			          		xo = 'o';
+			          		o = true;
+			        	} else
+			        		gameReady = true;
+			        	io.sockets.emit('reload');
+		        	} else
+		        		io.sockets.emit('reload');
+		        }	        	        
+		        io.sockets.emit('load', listOfPlayers);
 	        }
-	        // Reload UI with blank grid
-	        io.sockets.emit('reload');
-	        io.sockets.emit('load', listOfPlayers);
 	    });
 	});
 

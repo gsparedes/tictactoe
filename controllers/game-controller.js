@@ -8,14 +8,15 @@ module.exports = function(app, server) {
 
     var xo = 'x';
     var o = false;
-    var m_players = [];
-    var i = 0;
+    var listOfPlayers = [];
+    var playerCounter = 0;
+    var moveCounter = 0;
 
     var grid = {
       '0-0': '', '0-1':'', '0-2':'',
       '1-0': '', '1-1':'', '1-2':'',
       '2-0': '', '2-1':'', '2-2': ''
-    }
+    };
 
     io.sockets.on('connection', function(socket) {
 
@@ -29,19 +30,17 @@ module.exports = function(app, server) {
         	} else
 				xo = 'spectator';
 
-	        m_players[i] = player;
-	        i++;
+	        listOfPlayers[playerCounter] = player;
+	        playerCounter++;
         
 	        socket.emit('connect_1', player);
-	        io.sockets.emit('load',m_players);
+	        io.sockets.emit('load',listOfPlayers);
     	});
       
-    	socket.on('process_move', function(coords, player) {
-	        var n = 0;
+    	socket.on('process_move', function(coords, player) {	       
 	        coords = coords.replace("#",'');
 	        grid[coords] = player.mark;
-        
-	        console.log(grid);
+
 	        io.sockets.emit('mark', coords);
         
 	        if ( 
@@ -62,8 +61,12 @@ module.exports = function(app, server) {
 		        (grid['2-0'] == grid['1-1'] && grid['1-1'] == grid['0-2'] && grid['2-0'] != '') 
 	        )
 	        {
-	          io.sockets.emit('gameover', player);
+	          io.sockets.emit('gameover', player, false);
 	        }
+
+	        moveCounter++;
+	        if (moveCounter == 9)
+	        	io.sockets.emit('gameover', player, true);
     	});
       
 	    socket.on('disconnect', function() {
@@ -71,29 +74,48 @@ module.exports = function(app, server) {
 	        var n = 0;
 	        var tmp = [];
 
-	        while (n < m_players.length) {
-	        	if (m_players[j].id == socket.id) {
-	            	if(m_players[j].mark == 'o') {
+	        while (n < listOfPlayers.length) {
+	        	if (listOfPlayers[j].id == socket.id) {
+	            	if(listOfPlayers[j].mark == 'o') {
 	               		xo = 'o';
 	               		o = false;
 	             	}
 	             
-	            	if(m_players[j].mark == 'x')
+	            	if(listOfPlayers[j].mark == 'x')
 	            		xo = 'x';
 	         	  
 	         		n++;
 	         	}
 	         	 
-	         	if (n < m_players.length) {
-	         		tmp[j] = m_players[n];
+	         	if (n < listOfPlayers.length) {
+	         		tmp[j] = listOfPlayers[n];
 	         	   	j++;
 	         	   	n++;
 	         	}
 	        }
 	         	
-	        m_players = tmp;
-	        i = j;
-	        io.sockets.emit('load', m_players);
+	        listOfPlayers = tmp;
+	        playerCounter = j;
+	        // Reset grid
+	        grid = {
+		      '0-0': '', '0-1':'', '0-2':'',
+		      '1-0': '', '1-1':'', '1-2':'',
+		      '2-0': '', '2-1':'', '2-2': ''
+		    };
+	        // Re-initialize players
+	        for (var y = 0; y < listOfPlayers.length; y++) {
+	        	if(listOfPlayers[y].mark == 'spectator') {
+	        		listOfPlayers[y].mark = xo;
+	        		if(xo == 'x' && o == false)  {
+		          		xo = 'o';
+		          		o = true;
+		        	}
+		        	continue;
+	        	}
+	        }
+	        // Reload UI with blank grid
+	        io.sockets.emit('reload');
+	        io.sockets.emit('load', listOfPlayers);
 	    });
 	});
 

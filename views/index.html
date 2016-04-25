@@ -134,6 +134,11 @@
      if(!showedO) $("#p2").html("Waiting...");     
      if(showedX && showedO) startGame = true;     
   });
+
+  socket.on('reload', function() {
+    $('td').html('');
+    xo = 'x';
+  });
   
   socket.on('connect_1', function(data){
     player.id = data.id;
@@ -148,16 +153,22 @@
     }
   });
   
-  socket.on('gameover', function(data){
+  socket.on('gameover', function(data, catsGame){
     gameover = true;
-    if (player.mark != xo) {
-      $("#stats").html("You Win!").fadeIn(1000, function() {
+    if (catsGame) {
+      $("#stats").html("Cat's Game!").fadeIn(1000, function() {
         $(this).css({"display": "block","visibility": "visible"});
       });
     } else {
-      $("#stats").html("You Lose!").fadeIn(1000, function() {
-        $(this).css({"display": "block","visibility": "visible"});
-      });
-    }    
+      if (player.mark != xo) {
+        $("#stats").html("You Win!").fadeIn(1000, function() {
+          $(this).css({"display": "block","visibility": "visible"});
+        });
+      } else {
+        $("#stats").html("You Lose!").fadeIn(1000, function() {
+          $(this).css({"display": "block","visibility": "visible"});
+        });
+      }
+    }
   });
 </script>

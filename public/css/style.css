@@ -32,13 +32,13 @@ th
   border: 1px solid #000;
 }
 
-#pendingTable
+#pendingTable, #completedTable
 {
   border-collapse: collapse;
   border: 1px solid #000;
 }
 
-#pendingTable td
+#pendingTable td, #completedTable td
 {
   border: 1px solid #000;
   min-height: 20px;

@@ -37,7 +37,13 @@
   </tr>
 </table>
 <p>&nbsp;</p>
-<table width="15%" border="1" id="pendingTable">
+<table width="15%" border="1" id="pendingTable" style="float: left;">
+</table>
+<table width="30%" border="1" id="completedTable" style="float: right;">
+  <tr>
+    <th style="width: 20%;">#</th>
+    <th style="width: 80%;">Winner</th>
+  </tr>
 </table>
 <script type="text/javascript">
   var xo = 'x';
@@ -178,5 +184,7 @@
 
   socket.on('updateList', function(html) {
     $('#pendingTable').html(html);
-  })
+  });
+
+
 </script>

@@ -39,7 +39,8 @@ module.exports = function(app, server) {
 	        playerCounter++;
         
 	        socket.emit('connect_1', player);
-	        io.sockets.emit('load', listOfPlayers, listOfSpectatorsHtml);
+	        io.sockets.emit('load', listOfPlayers);
+	        io.sockets.emit('updateList', listOfSpectatorsHtml);
     	});
       
     	socket.on('process_move', function(coords, player) {	       
@@ -90,8 +91,10 @@ module.exports = function(app, server) {
 	            	if(listOfPlayers[j].mark == 'x')
 	            		xo = 'x';
 	         	  
-	         	  	if (listOfPlayers[j].mark == 'spectator')
+	         	  	if (listOfPlayers[j].mark == 'spectator') {
 	         	  		spectatorLeft = true;
+	         	  		listOfSpectatorsHtml = listOfSpectatorsHtml.replace('<tr><td>'+ listOfPlayers[j].name +'</td></tr>', '');
+	         	  	}
 	         		n++;
 	         	}
 	         	 
@@ -110,13 +113,16 @@ module.exports = function(app, server) {
 			      '0-0': '', '0-1':'', '0-2':'',
 			      '1-0': '', '1-1':'', '1-2':'',
 			      '2-0': '', '2-1':'', '2-2': ''
-			    };
+			    };			 
+			    // Reset pending player html
+			    listOfSpectatorsHtml = '<tr><th>Pending Players</th></tr>';   
 		        // Re-initialize players
 		        var gameReady = false;
 		        for (var y = 0; y < listOfPlayers.length; y++) {
-		        	if (gameReady)
+		        	if (gameReady) {
+		        		listOfSpectatorsHtml += '<tr><td>'+ listOfPlayers[y].name +'</td></tr>';
 		        		io.sockets.emit('reload');
-					else if(listOfPlayers[y].mark == 'spectator' && !gameReady) {
+		        	} else if(listOfPlayers[y].mark == 'spectator' && !gameReady) {
 		        		listOfPlayers[y].mark = xo;
 		        		if(xo == 'x' && o == false)  {
 			          		xo = 'o';
@@ -128,7 +134,9 @@ module.exports = function(app, server) {
 		        		io.sockets.emit('reload');
 		        }	        	        
 		        io.sockets.emit('load', listOfPlayers);
-	        }
+		        io.sockets.emit('updateList', listOfSpectatorsHtml);
+	        } else
+	        	io.sockets.emit('updateList', listOfSpectatorsHtml);
 	    });
 	});
 

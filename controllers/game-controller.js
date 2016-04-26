@@ -11,6 +11,7 @@ module.exports = function(app, server) {
     var listOfPlayers = [];
     var playerCounter = 0;
     var moveCounter = 0;
+    var listOfSpectatorsHtml = '<tr><th>Pending Players</th></tr>';
 
     var grid = {
       '0-0': '', '0-1':'', '0-2':'',
@@ -24,17 +25,21 @@ module.exports = function(app, server) {
         	player.id = socket.id;
         	player.mark = xo;
         
-        	if(xo == 'x' && o == false)  {
+        	if (xo == 'x' && o == false)  {
           		xo = 'o';
           		o = true;
         	} else
 				xo = 'spectator';
 
+			if (player.mark == 'spectator')
+				listOfSpectatorsHtml += '<tr><td>'+ player.name +'</td></tr>';
+				
+
 	        listOfPlayers[playerCounter] = player;
 	        playerCounter++;
         
 	        socket.emit('connect_1', player);
-	        io.sockets.emit('load',listOfPlayers);
+	        io.sockets.emit('load', listOfPlayers, listOfSpectatorsHtml);
     	});
       
     	socket.on('process_move', function(coords, player) {	       

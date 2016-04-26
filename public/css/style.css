@@ -25,3 +25,24 @@ td:hover
   border: 3px solid #FF0000 ;
   background: #FFdddd;
 }
+
+th
+{
+  font-size: 1.3em;
+  border: 1px solid #000;
+}
+
+#pendingTable
+{
+  border-collapse: collapse;
+  border: 1px solid #000;
+}
+
+#pendingTable td
+{
+  border: 1px solid #000;
+  min-height: 20px;
+  height: 20px;
+  font-size: 1em;
+  text-align: center;
+}

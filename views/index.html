@@ -36,6 +36,9 @@
     <td width="33%" id="2-2"></td>
   </tr>
 </table>
+<p>&nbsp;</p>
+<table width="15%" border="1" id="pendingTable">
+</table>
 <script type="text/javascript">
   var xo = 'x';
   var gameover = false;
@@ -115,7 +118,7 @@
     mark("#2-2", player);
   });
   
-  socket.on('load', function(data) {
+  socket.on('load', function(data, spectatorHtml) {
      var x = 0;
      var showedX, showedO = false;
      while( x < data.length ) {
@@ -127,6 +130,8 @@
         } else if (data[x].mark == 'o') {
           $("#p2").html(data[x].name + ": <span style='color:blue'>O</span>");
           showedO = true;
+        } else if (data[x].mark == 'spectator') {
+          $('#pendingTable').html(spectatorHtml);
         }
         x++;
      }
